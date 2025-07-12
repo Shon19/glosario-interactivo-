@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glosario Interactivo - Derecho Informático</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Fondo animado sutil */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.1; }
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Buscador */
+        .search-container {
+            max-width: 1200px;
+            margin: -30px auto 40px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #ff0000;
+            border-radius: 25px;
+            outline: none;
+            background: white;
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            transform: scale(1.02);
+            box-shadow: 0 12px 35px rgba(255, 0, 0, 0.3);
+            border-color: #cc0000;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navegación alfabética */
+        .alphabet-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alphabet-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ff0000;
+            background: white;
+            color: #ff0000;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alphabet-btn:hover, .alphabet-btn.active {
+            background: #ff0000;
+            color: white;
+            transform: scale(1.2);
+        }
+
+        /* Contenedor del glosario */
+        .glossary-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .glossary-item {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .glossary-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            transition: left 0.5s ease;
+        }
+
+        .glossary-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(255, 0, 0, 0.2);
+            border-color: #ff0000;
+        }
+
+        .glossary-item:hover::before {
+            left: 100%;
+        }
+
+        .glossary-term {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .glossary-icon {
+            font-size: 1.2em;
+            color: #ff0000;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        .glossary-preview {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalAppear 0.4s ease-out;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.7) translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-definition {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+            text-align: justify;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Animaciones de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Pie de página */
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 60px;
+        }
+
+        .footer p {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .glossary-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .alphabet-nav {
+                gap: 5px;
+            }
+            
+            .alphabet-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9em;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo animado -->
+    <div class="animated-background" id="animatedBg"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>📖 Glosario Interactivo</h1>
+        <p>Derecho Informático y Tecnologías de la Información</p>
+    </div>
+
+    <!-- Buscador -->
+    <div class="search-container">
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Buscar términos en el glosario...">
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Navegación alfabética -->
+        <div class="alphabet-nav">
+            <button class="alphabet-btn active" onclick="filterByLetter('all')">Todo</button>
+            <button class="alphabet-btn" onclick="filterByLetter('A')">A</button>
+            <button class="alphabet-btn" onclick="filterByLetter('C')">C</button>
+            <button class="alphabet-btn" onclick="filterByLetter('D')">D</button>
+            <button class="alphabet-btn" onclick="filterByLetter('I')">I</button>
+            <button class="alphabet-btn" onclick="filterByLetter('L')">L</button>
+            <button class="alphabet-btn" onclick="filterByLetter('M')">M</button>
+            <button class="alphabet-btn" onclick="filterByLetter('N')">N</button>
+            <button class="alphabet-btn" onclick="filterByLetter('P')">P</button>
+            <button class="alphabet-btn" onclick="filterByLetter('R')">R</button>
+            <button class="alphabet-btn" onclick="filterByLetter('S')">S</button>
+            <button class="alphabet-btn" onclick="filterByLetter('T')">T</button>
+        </div>
+
+        <!-- Contenedor del glosario -->
+        <div class="glossary-container" id="glossaryContainer">
+            <!-- Los términos se generarán dinámicamente con JavaScript -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 Glosario Interactivo de Derecho Informático. Todos los derechos reservados.</p>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p class="modal-definition" id="modalDefinition"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos del glosario
+        const glossaryData = {
+            "Información": {
+                icon: "📊",
+                definition: "La Información se define como el conjunto organizado de datos procesados que confiere significado y conocimiento a quien los recibe, permitiendo la toma de decisiones o la comprensión de fenómenos. En el ámbito legal informático, la protección de la información, especialmente aquella sensible o personal, es fundamental."
+            },
+            "Sistematización": {
+                icon: "🔧",
+                definition: "Proceso de organización y estructuración de elementos o información de manera coherente y ordenada, siguiendo criterios específicos para facilitar su comprensión, análisis y aplicación práctica."
+            },
+            "Régimen jurídico": {
+                icon: "⚖️",
+                definition: "Conjunto de normas, principios y disposiciones legales que regulan una materia específica, estableciendo el marco legal dentro del cual se deben desarrollar las actividades y relaciones en un ámbito determinado."
+            },
+            "Marco constitucional": {
+                icon: "🏛️",
+                definition: "Conjunto de principios, derechos y normas fundamentales establecidos en la Constitución que sirven como base y límite para el desarrollo de toda la legislación y actuación del Estado."
+            },
+            "Libertad de expresión": {
+                icon: "💬",
+                definition: "Derecho fundamental que garantiza la facultad de toda persona para expresar y difundir libremente sus pensamientos, ideas y opiniones, sin censura previa, a través de cualquier medio de comunicación."
+            },
+            "Derecho de petición": {
+                icon: "📝",
+                definition: "Derecho constitucional que permite a toda persona dirigirse a las autoridades para solicitar información, presentar peticiones de interés general o particular, y obtener una respuesta pronta y eficaz."
+            },
+            "Telecomunicaciones": {
+                icon: "📡",
+                definition: "Transmisión de información a distancia mediante medios electrónicos, incluyendo telefonía, internet, radio, televisión y otras formas de comunicación digital."
+            },
+            "Protección jurídica": {
+                icon: "🛡️",
+                definition: "Conjunto de mecanismos legales y procedimientos establecidos por el ordenamiento jurídico para salvaguardar derechos, intereses y bienes jurídicos ante posibles amenazas o violaciones."
+            },
+            "Implicaciones": {
+                icon: "🔍",
+                definition: "Consecuencias, efectos o resultados que se derivan de una acción, decisión o situación específica, especialmente en el contexto legal y tecnológico."
+            },
+            "Criptografía": {
+                icon: "🔐",
+                definition: "Técnica de protección de la información mediante la transformación de datos en códigos secretos, garantizando la confidencialidad, integridad y autenticidad de la información digital."
+            },
+            "Propiedad industrial": {
+                icon: "🏭",
+                definition: "Conjunto de derechos exclusivos que protegen las creaciones aplicables a la industria, incluyendo patentes, marcas, diseños industriales y modelos de utilidad."
+            },
+            "Derechos de autor": {
+                icon: "✍️",
+                definition: "Derechos exclusivos que protegen las obras originales de carácter intelectual, artístico o científico, otorgando al autor prerrogativas morales y patrimoniales sobre su creación."
+            },
+            "Marcas": {
+                icon: "🏷️",
+                definition: "Signos distintivos que identifican productos o servicios en el mercado, protegidos legalmente para evitar confusión entre consumidores y garantizar la exclusividad comercial."
+            },
+            "Patentes": {
+                icon: "💡",
+                definition: "Títulos de propiedad industrial que otorgan el derecho exclusivo de explotar una invención durante un período determinado, a cambio de divulgar públicamente el conocimiento técnico."
+            },
+            "Copyright": {
+                icon: "©️",
+                definition: "Sistema de protección de derechos de autor que otorga al creador de una obra original el derecho exclusivo de reproducir, distribuir y modificar su creación durante un período específico."
+            },
+            "Copyleft": {
+                icon: "🔄",
+                definition: "Sistema de licencias que permite la libre distribución de obras bajo la condición de que las versiones modificadas mantengan la misma libertad de distribución y modificación."
+            },
+            "Normatividad internacional": {
+                icon: "🌐",
+                definition: "Conjunto de tratados, convenios y acuerdos internacionales que establecen estándares y principios comunes para la regulación de materias específicas a nivel global."
+            },
+            "Derecho": {
+                icon: "⚖️",
+                definition: "El Derecho se concibe como el sistema de normas coactivas y principios que regulan la convivencia social y la conducta humana, orientado por los ideales de justicia y seguridad jurídica. Su aplicación en el ámbito digital busca establecer un marco de legalidad para las interacciones y transacciones en el ciberespacio."
+            },
+            "Legislación": {
+                icon: "📜",
+                definition: "La Legislación se refiere al cuerpo de leyes, decretos y reglamentos que, en su conjunto, constituyen el ordenamiento jurídico de un estado o regulan una materia específica. En el contexto informático, engloba las normativas destinadas a regular el uso, desarrollo, y protección de las tecnologías de la información y la comunicación."
+            },
+            "Normatividad": {
+                icon: "📋",
+                definition: "La Normatividad es el conjunto de reglas, directrices y disposiciones de diversa jerarquía (incluyendo leyes, reglamentos, acuerdos, etc.) que establecen cómo se debe actuar en un determinado contexto o ámbito. En el sector tecnológico, establece los estándares y procedimientos para garantizar un uso ético y seguro de los sistemas y la información."
+            },
+            "Informática": {
+                icon: "💻",
+                definition: "La Informática es la disciplina científica y tecnológica que se ocupa del estudio, desarrollo y aplicación de métodos y técnicas para el tratamiento automático de la información mediante el uso de computadoras. Abarca desde el hardware y el software hasta las redes y la inteligencia artificial, siendo el objeto principal de la regulación en la legislación informática."
+            },
+            "Autor": {
+                icon: "👨‍💻",
+                definition: "Un Autor es la persona física que realiza la creación intelectual de una obra original, la cual puede ser literaria, artística, científica o, en el diseño informático, un programa de cómputo, un macro de datos o un diseño digital. Los derechos de autor le otorgan prerrogativas exclusivas sobre su creación."
+            },
+            "Contrato": {
+                icon: "📄",
+                definition: "Un Contrato es un acuerdo de voluntades entre dos o más partes que genera derechos y obligaciones recíprocas, susceptible de ser ejecutado legalmente. En el campo de la informática, son cruciales los contratos de licencia de software, de prestación de servicios tecnológicos, de desarrollo de aplicaciones y los acuerdos de confidencialidad."
+            },
+            "Delito": {
+                icon: "🚫",
+                definition: "El Delito es toda acción u omisión tipificada en la ley penal, antijurídica y culpable, a la cual se le asigna una pena. En el ámbito informático, se reconocen los delitos informáticos como aquellas conductas ilícitas que utilizan las tecnologías de la información como medio o como fin, tales como el fraude cibernético, el acceso no autorizado o el daño a sistemas informáticos."
+            }
+        };
+
+        // Variables globales
+        let currentFilter = 'all';
+        
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            createFloatingParticles();
+            displayGlossary();
+            setupSearch();
+        });
+
+        // Crear partículas flotantes
+        function createFloatingParticles() {
+            const bg = document.getElementById('animatedBg');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'floating-particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                bg.appendChild(particle);
+            }
+        }
+
+        // Mostrar glosario
+        function displayGlossary() {
+            const container = document.getElementById('glossaryContainer');
+            container.innerHTML = '';
+            
+            Object.entries(glossaryData).forEach(([term, data], index) => {
+                if (currentFilter === 'all' || term.charAt(0).toUpperCase() === currentFilter) {
+                    const item = document.createElement('div');
+                    item.className = 'glossary-item';
+                    item.style.animationDelay = (index * 0.1) + 's';
+                    item.innerHTML = `
+                        <div class="glossary-term">
+                            <span class="glossary-icon">${data.icon}</span>
+                            ${term}
+                        </div>
+                        <div class="glossary-preview">
+                            ${data.definition.substring(0, 100)}...
+                        </div>
+                    `;
+                    item.onclick = () => openModal(term, data);
+                    container.appendChild(item);
+                }
+            });
+        }
+
+        // Abrir modal
+        function openModal(term, data) {
+            document.getElementById('modalTitle').innerHTML = `<span class="glossary-icon">${data.icon}</span> ${term}`;
+            document.getElementById('modalDefinition').textContent = data.definition;
+            document.getElementById('modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Filtrar por letra
+        function filterByLetter(letter) {
+            currentFilter = letter;
+            displayGlossary();
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.alphabet-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Configurar búsqueda
+        function setupSearch() {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase();
+                const items = document.querySelectorAll('.glossary-item');
+                
+                items.forEach(item => {
+                    const term = item.querySelector('.glossary-term').textContent.toLowerCase();
+                    const preview = item.querySelector('.glossary-preview').textContent.toLowerCase();
+                    
+                    if (term.includes(query) || preview.includes(query)) {
+                        item.style.display = 'block';
+                        item.style.animation = 'fadeInUp 0.3s ease-out';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
